@@ -5,7 +5,7 @@
 int main()
 {
 	Simulation simulation = SimulationBuilder()
-		.loadData("../data/testData.txt")
+		.LoadData("../data/testDataSimplex.txt")
 		.Build();
 
 	simulation.Run();

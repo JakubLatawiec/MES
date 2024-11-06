@@ -10,6 +10,7 @@ private:
 	friend class SimulationBuilder;
 
 	void printLoadedData();
+	void calcElementJacobians();
 
 public:
 	GlobalData GlobalData{};

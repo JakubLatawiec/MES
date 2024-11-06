@@ -31,8 +31,20 @@ void Simulation::printLoadedData()
     }
 }
 
+void Simulation::calcElementJacobians()
+{
+    for (auto& element : this->Grid.Elements)
+    {
+        element.CalcJacobians(this->Grid.Nodes);
+    }
+}
+
 void Simulation::Run()
 {
-	std::cout << "RUN\n";
+	std::cout << "RUNNING SIMULATION...\n";
     printLoadedData();
+    Element::CalcElementUniv(4);
+    Element::PrintElementUniv();
+
+    calcElementJacobians();
 }
