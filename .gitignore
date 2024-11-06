@@ -63,7 +63,3 @@ Makefile.Release
 *.vcxproj.user
 *.vcxproj.filters
 *.vcxproj.filters.user
-
-# Ignore anything in the scripts folder EXCEPT premake.exe
-scripts/*
-!scripts/premake.exe
