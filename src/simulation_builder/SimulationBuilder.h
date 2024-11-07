@@ -13,6 +13,7 @@ private:
 
 public:
 	SimulationBuilder& LoadData(const std::string& filepath);
+	//SET Number of integration points
 
 	Simulation Build();
 

@@ -6,15 +6,23 @@
 class Simulation
 {
 private:
+	//Pattern variables
 	Simulation() = default;
 	friend class SimulationBuilder;
 
+	//Simulation variables
+	int m_IPC{};
+	GlobalData m_GlobalData{};
+	Grid m_Grid{};
+
 	void printLoadedData();
 	void calcElementJacobians();
+	void calcElementsStiffnessMatrixes();
 
 public:
-	GlobalData GlobalData{};
-	Grid Grid{};
+	
+
+	//Pattern methods
 	void Run();
 };
 

@@ -4,7 +4,7 @@
 
 SimulationBuilder& SimulationBuilder::LoadData(const std::string& filepath)
 {
-	DataParser::ParseData(filepath, this->simulation.GlobalData, this->simulation.Grid);
+	DataParser::ParseData(filepath, this->simulation.m_GlobalData, this->simulation.m_Grid);
 	return *this;
 }
 

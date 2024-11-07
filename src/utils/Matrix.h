@@ -31,6 +31,10 @@ public:
 
 	//Multiplication operator
 	Matrix operator*(const Matrix& other) const;
+	Matrix operator*(double scalar) const;
+	friend Matrix operator*(double scalar, const Matrix& matrix) {
+		return matrix * scalar;
+	}
 
 	//Transpose method
 	Matrix Transpose() const;
@@ -49,7 +53,10 @@ public:
 	void setRows(size_t size);
 
 	//Getters
-	inline size_t getCols() const { return m_Cols; }
-	inline size_t getRows() const { return m_Rows; }
+	inline size_t getColsSize() const { return m_Cols; }
+	inline size_t getRowsSize() const { return m_Rows; }
+	Matrix getCol(size_t index) const;
+	Matrix getRow(size_t index) const;
+
 };
 
