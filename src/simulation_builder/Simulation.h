@@ -15,13 +15,16 @@ private:
 	GlobalData m_GlobalData{};
 	Grid m_Grid{};
 
-	void printLoadedData();
+	//Simulation calculation methods
 	void calcElementJacobians();
 	void calcElementsStiffnessMatrixes();
 
-public:
-	
+	//Debug methods
+	void printLoadedData();
+	void printIPC();
+	void printElements();
 
+public:
 	//Pattern methods
 	void Run();
 };

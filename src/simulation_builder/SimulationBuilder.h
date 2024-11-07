@@ -9,12 +9,15 @@
 class SimulationBuilder
 {
 private:
-	Simulation simulation;
+	//Pattern variables
+	Simulation m_Simulation;
 
 public:
+	//Configuration setters
 	SimulationBuilder& LoadData(const std::string& filepath);
-	//SET Number of integration points
+	SimulationBuilder& SetIPC(int ipc);
 
+	//Pattern methods
 	Simulation Build();
 
 };

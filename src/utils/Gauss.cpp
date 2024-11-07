@@ -1,6 +1,41 @@
 #include "Gauss.h"
 
-std::vector<Gauss::Coefficient1D> Gauss::GetIntegrationPoints1D(int npc)
+//TODO: Wyliczanie analityczne
+std::unordered_map<int, std::vector<Coefficient1D>> Gauss::m_Coefficients =
+{
+	{1, {
+			{0, 2}
+		}
+	},
+	{2, { 
+			{-sqrt(1.0 / 3.0), 1.0}, 
+			{sqrt(1.0 / 3.0), 1.0} 
+		} 
+	},
+	{3, {
+			{-sqrt(3.0 / 5.0), 5.0 / 9.0},
+			{0.0, 8.0 / 9.0},
+			{sqrt(3.0 / 5.0), 5.0 / 9.0}
+		}
+	},
+	{4, {
+			{-0.861136311594053, 0.347854845137454},
+			{-0.339981043584856, 0.652145154862546},
+			{ 0.339981043584856, 0.652145154862546},
+			{ 0.861136311594053, 0.347854845137454}
+		}
+	},
+	{5, {
+			{-0.906179845938664, 0.236926885056189},
+			{-0.538469310105683, 0.478628670499366},
+			{0.0,                0.568888888888889},
+			{ 0.538469310105683, 0.478628670499366},
+			{ 0.906179845938664, 0.236926885056189}
+		}
+	}
+};
+
+std::vector<Coefficient1D> Gauss::GetIntegrationPoints1D(int npc)
 {
 	std::vector<Coefficient1D> res{};
 
@@ -43,7 +78,7 @@ std::vector<Gauss::Coefficient1D> Gauss::GetIntegrationPoints1D(int npc)
 	return res;
 }
 
-std::vector<Gauss::Coefficient2D> Gauss::GetIntegrationPoints2D(int npc)
+std::vector<Coefficient2D> Gauss::GetIntegrationPoints2D(int npc)
 {
 	std::vector<Coefficient2D> res{};
 

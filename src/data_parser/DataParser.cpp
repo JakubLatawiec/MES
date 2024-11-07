@@ -74,7 +74,8 @@ void DataParser::ParseData(const std::string& filename, GlobalData& globalData, 
                 std::getline(file, line);
                 std::vector<std::string> tokens = split(line, ',');
                 for (int j = 0; j < 4; ++j) {
-                    grid.Elements[i].NodesID[j] = std::stoi(tokens[j + 1]);
+                    //grid.Elements[i].m_NodesID[j] = std::stoi(tokens[j + 1]);
+                    grid.Elements[i].setNodesID(j, std::stoi(tokens[j + 1]));
                 }
             }
         }
