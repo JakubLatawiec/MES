@@ -1,10 +1,13 @@
 #pragma once
 
-#include <array>
+#include "../utils/Matrix.h"
 
 struct Jacobian
 {
-	std::array<std::array<double, 2>, 2> J{};
-	std::array<std::array<double, 2>, 2> J1{};
+	Matrix J;
+	Matrix J1;
 	double DetJ{};
+
+	Jacobian()
+		: J(Matrix(2,2)), J1(Matrix(2,2)) {}
 };
