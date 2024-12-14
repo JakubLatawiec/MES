@@ -1,14 +1,23 @@
-#include <iostream>
-
 #include "simulation_builder/SimulationBuilder.h"
+
+#include <iostream>
 
 int main()
 {
-	Simulation simulation = SimulationBuilder()
-		.LoadData("../data/testDataSimplex.txt")
-		.Build();
+	try
+	{
+		Simulation simulation = SimulationBuilder()
+			.LoadData("../data/testDataMixGrid.txt")
+			.SetIPC(9)
+			.SetSurfaceIPC(2)
+			.Build();
 
-	simulation.Run();
+		simulation.Run();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << "\n";
+	}
 
 	return 0;
 }

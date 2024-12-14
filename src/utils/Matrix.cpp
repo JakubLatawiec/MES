@@ -79,11 +79,21 @@ Matrix Matrix::operator*(const Matrix& other) const
 	if (m_Cols != other.m_Rows)
 		throw std::invalid_argument("MATRIX MULTIPLICATION: Incompatible matrix dimensions!");
 
-	Matrix result(m_Rows, other.m_Rows);
+	Matrix result(m_Rows, other.m_Cols);
 	for (size_t i = 0; i < m_Rows; ++i)
 		for (size_t j = 0; j < other.m_Cols; ++j)
 			for (size_t k = 0; k < m_Cols; ++k)
 				result(i, j) += m_Data[i][k] * other(k, j);
+
+	return result;
+}
+
+Matrix Matrix::operator*(double scalar) const
+{
+	Matrix result(m_Rows, m_Cols);
+	for (size_t i = 0; i < m_Rows; ++i)
+		for (size_t j = 0; j < m_Cols; ++j)
+			result(i, j) = m_Data[i][j] * scalar;
 
 	return result;
 }
@@ -176,4 +186,28 @@ void Matrix::setRows(size_t size)
 {
 	m_Data.resize(size, std::vector<double>(m_Cols, 0.0));
 	m_Rows = size;
+}
+
+Matrix Matrix::getCol(size_t index) const
+{
+	if (index >= m_Cols)
+		throw std::out_of_range("MATRIX GETCOLLUMN: Index out of range!");
+
+	Matrix col(m_Rows, 1);
+	for (size_t i = 0; i < m_Rows; ++i)
+		col(i, 0) = m_Data[i][index];
+
+	return col;
+}
+
+Matrix Matrix::getRow(size_t index) const
+{
+	if (index >= m_Rows)
+		throw std::out_of_range("MATRIX GETROWS: Index out of range!");
+
+	Matrix row(1, m_Cols);
+	for (size_t j = 0; j < m_Cols; ++j)
+		row(0, j) = m_Data[index][j];
+
+	return row;
 }

@@ -9,7 +9,7 @@ SpecificHeat 700
 Nodes number 4
 Elements number 1
 *Node
-      1, 0.0, 0.0
+      1, 0.01, -0.01
       2, 0.025, 0.0
       3, 0.025, 0.025
       4, 0.0, 0.025

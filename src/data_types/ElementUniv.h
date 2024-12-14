@@ -1,14 +1,19 @@
 #pragma once
 
-#include <vector>
-#include <array>
-
 #include "../utils/Matrix.h"
+#include "../utils/Gauss.h"
+#include <array>
+#include <iostream>
+
 
 struct ElementUniv
 {
-	//std::vector<std::array<double, 4>> CsiDerivative{};
-	//std::vector<std::array<double, 4>> EtaDerivative{};
 	Matrix CsiDerivative;
 	Matrix EtaDerivative;
+	Matrix PcN{};
+
+	void calcPcN(int ipc);
+
+	//TODO:
+	//SEPARATE ELEMENT UNIV CALC FUNCTIONS
 };

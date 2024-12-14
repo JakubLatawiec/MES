@@ -74,12 +74,19 @@ void DataParser::ParseData(const std::string& filename, GlobalData& globalData, 
                 std::getline(file, line);
                 std::vector<std::string> tokens = split(line, ',');
                 for (int j = 0; j < 4; ++j) {
-                    grid.Elements[i].NodesID[j] = std::stoi(tokens[j + 1]);
+                    grid.Elements[i].setNodesID(j, std::stoi(tokens[j + 1]));
                 }
             }
         }
         else if (key == "*BC") {
-            break;
+            while (std::getline(file, line))
+            {
+                std::vector<std::string> tokens = split(line, ',');
+                for (const auto& token : tokens)
+                {
+                    grid.Nodes[std::stoi(token) - 1].isBorderCondition = true;
+                }
+            }
         }
     }
 
