@@ -6,6 +6,7 @@ ElementUniv Element::m_ElementUniv;
 int Element::m_IPC;
 int Element::m_SFC;
 std::vector<Coefficient2D> Element::m_IntegrationPoints;
+Surface Element::m_Surface;
 
 void Element::CalcElementUniv(int ipc)
 {
@@ -27,6 +28,13 @@ void Element::CalcElementUniv(int ipc)
 		m_ElementUniv.EtaDerivative(i, 2) = 0.25 * (1 + m_IntegrationPoints[i].Node.csi);
 		m_ElementUniv.EtaDerivative(i, 3) = 0.25 * (1 - m_IntegrationPoints[i].Node.csi);
 	}
+
+	m_ElementUniv.calcPcN(ipc);
+}
+
+void Element::CalcSurface(int ipc)
+{
+	m_Surface.calcSurface(ipc);
 }
 
 void Element::CalcJacobians(const std::vector<Node>& nodes)
@@ -35,7 +43,7 @@ void Element::CalcJacobians(const std::vector<Node>& nodes)
 	for (int i = 0; i < m_IPC; ++i)
 	{
 		Jacobian jacobian;
-		for (size_t j = 0; j < nodes.size(); ++j)
+		for (size_t j = 0; j < 4; ++j)
 		{
 			int node_id = m_NodesID[j] - 1;
 			jacobian.J(0, 0) += m_ElementUniv.CsiDerivative(i, j) * nodes[j].x;
@@ -74,6 +82,63 @@ void Element::CalcStiffnessMatrixes(double conductivity)
 		m_StiffnessMatrix = m_StiffnessMatrix + m_StiffnessMatrixes[i] * m_IntegrationPoints[i].SurfArea;
 }
 
+void Element::CalcHbcMatrixes(const std::vector<Node>& nodes, double alpha)
+{
+	for (size_t side = 0; side < nodes.size(); ++side)
+	{
+		const Node& current = nodes[side];
+		const Node& next = nodes[(side + 1) % nodes.size()];
+
+		if (current.isBorderCondition && next.isBorderCondition)
+		{
+			double sideLength = std::sqrt(std::pow(next.x - current.x, 2) + std::powf(next.y - current.y, 2));
+			double detJ = sideLength / 2.0;
+			m_HbcMatrixes[side] = m_Surface.HbcMatrixes[side] * alpha * detJ;
+		}
+		else
+			m_HbcMatrixes[side] = Matrix(4, 4);
+	}
+
+	for (size_t side = 0; side < 4; ++side)
+	{
+		m_StiffnessMatrix = m_StiffnessMatrix + m_HbcMatrixes[side];
+	}
+}
+
+void Element::CalcPVector(const std::vector<Node>& nodes, double alpha, double Tot)
+{
+	m_PVector = Matrix(4, 1);
+
+	for (size_t side = 0; side < nodes.size(); ++side)
+	{
+		const Node& current = nodes[side];
+		const Node& next = nodes[(side + 1) % nodes.size()];
+
+		if (current.isBorderCondition && next.isBorderCondition)
+		{
+			double sideLength = std::sqrt(std::pow(next.x - current.x, 2) + std::powf(next.y - current.y, 2));
+			double detJ = sideLength / 2.0;
+			m_PVector = m_PVector + (m_Surface.PVectors[side] * alpha * Tot * detJ);
+		}
+	}
+}
+
+void Element::CalcCMatrix(double c, double rho)
+{
+	auto integrationPoints = Gauss::GetIntegrationPoints2D(m_IPC);
+	m_CMatrixes.resize(m_IPC);
+
+	for (size_t i = 0; i < m_IPC; ++i)
+	{
+		m_CMatrixes[i] = c * rho * (m_ElementUniv.PcN.getRow(i).Transpose() * m_ElementUniv.PcN.getRow(i)) * m_JacobianMatrixes[i].DetJ;
+	}
+
+	m_CMatrix = Matrix(4, 4);
+	for (size_t i = 0; i < m_IPC; ++i)
+	{
+		m_CMatrix = m_CMatrix + m_CMatrixes[i] * integrationPoints[i].SurfArea;
+	}
+}
 
 
 void Element::PrintElementUniv()
@@ -83,6 +148,8 @@ void Element::PrintElementUniv()
 	m_ElementUniv.CsiDerivative.Display(6);
 	std::cout << "EtaDerivative\n";
 	m_ElementUniv.EtaDerivative.Display(6);
+	std::cout << "PcN:\n";
+	m_ElementUniv.PcN.Display();
 	std::cout << std::endl;
 }
 
@@ -93,6 +160,7 @@ void Element::PrintJacobianMatrixes()
 	{
 		std::cout << "pc" << i + 1 << ":\n";
 		m_JacobianMatrixes[i].J1.Display(6);
+		std::cout << m_JacobianMatrixes[i].DetJ << "\n";
 	}
 }
 
@@ -108,8 +176,49 @@ void Element::PrintStiffnessMatrixes()
 
 void Element::PrintStiffnessMatrix()
 {
-	std::cout << "STIFFNESS MATRIXES\n";
+	std::cout << "ELEMENT STIFFNESS MATRIX\n";
 	m_StiffnessMatrix.Display(6);
+}
+
+void Element::PrintNodesID()
+{
+	std::cout << "NODES IDS\n";
+	for (auto& nodeID : this->m_NodesID)
+	{
+		std::cout << nodeID << ", ";
+	}
+	std::cout << std::endl;
+}
+
+void Element::PrintHbcMatrixes()
+{
+	std::cout << "HBC MATRIXES\n";
+	for (size_t i = 0; i < m_HbcMatrixes.size(); ++i)
+	{
+		m_HbcMatrixes[i].Display();
+	}
+}
+
+void Element::PrintPVector()
+{
+	std::cout << "P VECTOR\n";
+	m_PVector.Display();
+}
+
+void Element::PrintCMatrixes()
+{
+	std::cout << "C MATRIXES\n";
+	for (size_t i = 0; i < m_CMatrixes.size(); ++i)
+	{
+		m_CMatrixes[i].Display();
+		std::cout << "\n";
+	}
+}
+
+void Element::PrintCMatrix()
+{
+	std::cout << "C MATRIX\n";
+	m_CMatrix.Display();
 }
 
 void Element::setNodesID(size_t index, int id)
@@ -120,4 +229,19 @@ void Element::setNodesID(size_t index, int id)
 const std::array<int, 4>& Element::getNodesID() const
 {
 	return m_NodesID;
+}
+
+const Matrix& Element::getStifnessMatrix() const
+{
+	return m_StiffnessMatrix;
+}
+
+const Matrix& Element::getPVector() const
+{
+	return m_PVector;
+}
+
+const Matrix& Element::getCMatrix() const
+{
+	return m_CMatrix;
 }

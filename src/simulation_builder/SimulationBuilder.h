@@ -16,6 +16,7 @@ public:
 	//Configuration setters
 	SimulationBuilder& LoadData(const std::string& filepath);
 	SimulationBuilder& SetIPC(int ipc);
+	SimulationBuilder& SetSurfaceIPC(int ipc);
 
 	//Pattern methods
 	Simulation Build();

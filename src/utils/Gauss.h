@@ -5,11 +5,7 @@
 
 #include "../data_types/Node.h"
 
-struct Coefficient1D 
-{
-	double X{}, W{};
-	Coefficient1D() = default;
-};
+struct Coefficient1D { double X{}, W{}; };
 struct Coefficient2D { Node Node{}; double SurfArea{}; };
 
 class Gauss

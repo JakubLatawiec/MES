@@ -20,6 +20,12 @@ SimulationBuilder& SimulationBuilder::SetIPC(int ipc)
 	return *this;
 }
 
+SimulationBuilder& SimulationBuilder::SetSurfaceIPC(int ipc)
+{
+	m_Simulation.m_SurfaceIPC = ipc;
+	return *this;
+}
+
 Simulation SimulationBuilder::Build()
 {
 	return m_Simulation;

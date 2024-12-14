@@ -7,8 +7,9 @@ int main()
 	try
 	{
 		Simulation simulation = SimulationBuilder()
-			.LoadData("../data/testDataSimplex2.txt")
-			.SetIPC(4)
+			.LoadData("../data/testDataMixGrid.txt")
+			.SetIPC(9)
+			.SetSurfaceIPC(2)
 			.Build();
 
 		simulation.Run();
