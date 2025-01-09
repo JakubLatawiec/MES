@@ -5,7 +5,7 @@
 
 void Surface::calcSurface(int npc)
 {
-	auto integrationPoints = Gauss::GetIntegrationPoints1D(npc);
+	auto integrationPoints = Gauss::getIntegrationPoints1D();
 
 	for (int side = 0; side < 4; ++side)
 	{

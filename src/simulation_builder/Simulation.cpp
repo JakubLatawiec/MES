@@ -159,24 +159,18 @@ void Simulation::calcGlobalCMatrix()
 
 void Simulation::Run()
 {
+    Gauss::Initialize(3);
+    Element::Initialize(3, 4);
+
     //Debug loaded data
     printLoadedData();
 
     //Debug integration points count
     printIPC();
 
-    //Calc universal element derivatives
-    Element::CalcElementUniv(m_IPC);
-
-    //Debug universal element derivatives
-    Element::PrintElementUniv();
-
     //Calc Matrixes for every element
     calcElementJacobians();
     calcElementsStiffnessMatrixes();
-
-    //Calc universal element surface
-    Element::CalcSurface(m_SurfaceIPC);
 
     //Calc border conditions for every element
     calcElementHbcMatrixes();

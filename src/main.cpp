@@ -9,7 +9,7 @@ int main()
 		Simulation simulation = SimulationBuilder()
 			.LoadData("../data/testDataMixGrid.txt")
 			.SetIPC(9)
-			.SetSurfaceIPC(2)
+			.SetSurfaceIPC(3)
 			.Build();
 
 		simulation.Run();

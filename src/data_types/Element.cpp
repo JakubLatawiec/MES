@@ -2,98 +2,86 @@
 
 #include <iostream>
 
-ElementUniv Element::m_ElementUniv;
-int Element::m_IPC;
-int Element::m_SFC;
-std::vector<Coefficient2D> Element::m_IntegrationPoints;
-Surface Element::m_Surface;
+int Element::m_IPC{};
+int Element::m_IPC2D{};
+int Element::m_SFC{};
+std::unique_ptr<ElementUniv> Element::m_ElementUniv = nullptr;
 
-void Element::CalcElementUniv(int ipc)
+const ElementUniv& Element::getElementUniv()
 {
-	m_IPC = ipc;
-	m_SFC = 4;
-	m_ElementUniv.CsiDerivative = Matrix(m_IPC, m_SFC);
-	m_ElementUniv.EtaDerivative = Matrix(m_IPC, m_SFC);
-	m_IntegrationPoints = Gauss::GetIntegrationPoints2D(ipc);
+	if (!m_ElementUniv)
+		throw std::runtime_error("ElementUniv is not initialized!");
 
-	for (size_t i = 0; i < ipc; ++i)
-	{
-		m_ElementUniv.CsiDerivative(i, 0) = -0.25 * (1 - m_IntegrationPoints[i].Node.eta);
-		m_ElementUniv.CsiDerivative(i, 1) = 0.25 * (1 - m_IntegrationPoints[i].Node.eta);
-		m_ElementUniv.CsiDerivative(i, 2) = 0.25 * (1 + m_IntegrationPoints[i].Node.eta);
-		m_ElementUniv.CsiDerivative(i, 3) = -0.25 * (1 + m_IntegrationPoints[i].Node.eta);
-
-		m_ElementUniv.EtaDerivative(i, 0) = -0.25 * (1 - m_IntegrationPoints[i].Node.csi);
-		m_ElementUniv.EtaDerivative(i, 1) = -0.25 * (1 + m_IntegrationPoints[i].Node.csi);
-		m_ElementUniv.EtaDerivative(i, 2) = 0.25 * (1 + m_IntegrationPoints[i].Node.csi);
-		m_ElementUniv.EtaDerivative(i, 3) = 0.25 * (1 - m_IntegrationPoints[i].Node.csi);
-	}
-
-	m_ElementUniv.calcPcN(ipc);
-}
-
-void Element::CalcSurface(int ipc)
-{
-	m_Surface.calcSurface(ipc);
+	return *m_ElementUniv;
 }
 
 void Element::CalcJacobians(const std::vector<Node>& nodes)
 {
-	m_JacobianMatrixes.resize(m_IPC);
-	for (int i = 0; i < m_IPC; ++i)
+	m_JacobianMatrixes.resize(m_IPC2D);
+
+	const auto& csiDerivatives = Element::getElementUniv().getCsiDerivatives();
+	const auto& etaDerivatives = Element::getElementUniv().getEtaDerivatives();
+
+	for (int i = 0; i < m_IPC2D; ++i)
 	{
 		Jacobian jacobian;
 		for (size_t j = 0; j < 4; ++j)
 		{
-			int node_id = m_NodesID[j] - 1;
-			jacobian.J(0, 0) += m_ElementUniv.CsiDerivative(i, j) * nodes[j].x;
-			jacobian.J(0, 1) += m_ElementUniv.CsiDerivative(i, j) * nodes[j].y;
-			jacobian.J(1, 0) += m_ElementUniv.EtaDerivative(i, j) * nodes[j].x;
-			jacobian.J(1, 1) += m_ElementUniv.EtaDerivative(i, j) * nodes[j].y;
+			jacobian.J(0, 0) += csiDerivatives(i, j) * nodes[j].x;
+			jacobian.J(0, 1) += csiDerivatives(i, j) * nodes[j].y;
+			jacobian.J(1, 0) += etaDerivatives(i, j) * nodes[j].x;
+			jacobian.J(1, 1) += etaDerivatives(i, j) * nodes[j].y;
 		}
 
 		jacobian.DetJ = jacobian.J.Determinant();
 		jacobian.J1 = jacobian.J.Inverse();
-
 		m_JacobianMatrixes[i] = jacobian;
 	}
 }
 
 void Element::CalcStiffnessMatrixes(double conductivity)
 {
-	m_StiffnessMatrixes.resize(m_IPC);
+	m_StiffnessMatrixes.resize(m_IPC2D);
 
-	Matrix dNdX(m_IPC, m_SFC);
-	Matrix dNdY(m_IPC, m_SFC);
-	for (size_t i = 0; i < m_IPC; ++i)
+	const auto& csiDerivatives = Element::getElementUniv().getCsiDerivatives();
+	const auto& etaDerivatives = Element::getElementUniv().getEtaDerivatives();
+
+	const auto& integrationPoints = Gauss::getIntegrationPoints2D();
+
+	Matrix dNdX(m_IPC2D, m_SFC);
+	Matrix dNdY(m_IPC2D, m_SFC);
+
+	for (size_t i = 0; i < m_IPC2D; ++i)
 	{
 		for (size_t j = 0; j < m_SFC; ++j)
 		{
-			dNdX(i, j) = m_JacobianMatrixes[i].J1(0, 0) * m_ElementUniv.CsiDerivative(i, j) + m_JacobianMatrixes[i].J1(0, 1) * m_ElementUniv.EtaDerivative(i, j);
-			dNdY(i, j) = m_JacobianMatrixes[i].J1(1, 0) * m_ElementUniv.CsiDerivative(i, j) + m_JacobianMatrixes[i].J1(1, 1) * m_ElementUniv.EtaDerivative(i, j);
+			dNdX(i, j) = m_JacobianMatrixes[i].J1(0, 0) * csiDerivatives(i, j) + m_JacobianMatrixes[i].J1(0, 1) * etaDerivatives(i, j);
+			dNdY(i, j) = m_JacobianMatrixes[i].J1(1, 0) * csiDerivatives(i, j) + m_JacobianMatrixes[i].J1(1, 1) * etaDerivatives(i, j);
 		}
 	}
 
-	for (size_t i = 0; i < m_IPC; ++i)
+	for (size_t i = 0; i < m_IPC2D; ++i)
 		m_StiffnessMatrixes[i] = m_JacobianMatrixes[i].DetJ * conductivity * (dNdX.getRow(i).Transpose() * dNdX.getRow(i) + dNdY.getRow(i).Transpose() * dNdY.getRow(i));
 		
 	m_StiffnessMatrix = Matrix(m_SFC, m_SFC);
-	for (size_t i = 0; i < m_IPC; ++i)
-		m_StiffnessMatrix = m_StiffnessMatrix + m_StiffnessMatrixes[i] * m_IntegrationPoints[i].SurfArea;
+	for (size_t i = 0; i < m_IPC2D; ++i)
+		m_StiffnessMatrix = m_StiffnessMatrix + m_StiffnessMatrixes[i] * integrationPoints[i].SurfArea;
 }
 
 void Element::CalcHbcMatrixes(const std::vector<Node>& nodes, double alpha)
 {
-	for (size_t side = 0; side < nodes.size(); ++side)
+	const auto& hbcMatrixes = Element::getElementUniv().getHbcMatrixes();
+
+	for (size_t side = 0; side < m_SFC; ++side)
 	{
 		const Node& current = nodes[side];
-		const Node& next = nodes[(side + 1) % nodes.size()];
+		const Node& next = nodes[(side + 1) % m_SFC];
 
 		if (current.isBorderCondition && next.isBorderCondition)
 		{
 			double sideLength = std::sqrt(std::pow(next.x - current.x, 2) + std::powf(next.y - current.y, 2));
 			double detJ = sideLength / 2.0;
-			m_HbcMatrixes[side] = m_Surface.HbcMatrixes[side] * alpha * detJ;
+			m_HbcMatrixes[side] = hbcMatrixes[side] * alpha * detJ;
 		}
 		else
 			m_HbcMatrixes[side] = Matrix(4, 4);
@@ -107,51 +95,51 @@ void Element::CalcHbcMatrixes(const std::vector<Node>& nodes, double alpha)
 
 void Element::CalcPVector(const std::vector<Node>& nodes, double alpha, double Tot)
 {
+	auto& pVectors = Element::getElementUniv().getPVectors();
+
 	m_PVector = Matrix(4, 1);
 
-	for (size_t side = 0; side < nodes.size(); ++side)
+	for (size_t side = 0; side < m_SFC; ++side)
 	{
 		const Node& current = nodes[side];
-		const Node& next = nodes[(side + 1) % nodes.size()];
+		const Node& next = nodes[(side + 1) % m_SFC];
 
 		if (current.isBorderCondition && next.isBorderCondition)
 		{
 			double sideLength = std::sqrt(std::pow(next.x - current.x, 2) + std::powf(next.y - current.y, 2));
 			double detJ = sideLength / 2.0;
-			m_PVector = m_PVector + (m_Surface.PVectors[side] * alpha * Tot * detJ);
+			m_PVector = m_PVector + (pVectors[side] * alpha * Tot * detJ);
 		}
 	}
 }
 
 void Element::CalcCMatrix(double c, double rho)
 {
-	auto integrationPoints = Gauss::GetIntegrationPoints2D(m_IPC);
-	m_CMatrixes.resize(m_IPC);
+	auto& shapeFunctionvalues = Element::getElementUniv().getShapeFunctionValues();
+	auto& integrationPoints = Gauss::getIntegrationPoints2D();
 
-	for (size_t i = 0; i < m_IPC; ++i)
+	m_CMatrixes.resize(m_IPC2D);
+
+	for (size_t i = 0; i < m_IPC2D; ++i)
 	{
-		m_CMatrixes[i] = c * rho * (m_ElementUniv.PcN.getRow(i).Transpose() * m_ElementUniv.PcN.getRow(i)) * m_JacobianMatrixes[i].DetJ;
+		m_CMatrixes[i] = c * rho * (shapeFunctionvalues.getRow(i).Transpose() * shapeFunctionvalues.getRow(i)) * m_JacobianMatrixes[i].DetJ;
 	}
 
-	m_CMatrix = Matrix(4, 4);
-	for (size_t i = 0; i < m_IPC; ++i)
+	m_CMatrix = Matrix(m_SFC, m_SFC);
+	for (size_t i = 0; i < m_IPC2D; ++i)
 	{
 		m_CMatrix = m_CMatrix + m_CMatrixes[i] * integrationPoints[i].SurfArea;
 	}
 }
 
-
-void Element::PrintElementUniv()
+void Element::Initialize(int ipc, int sfc)
 {
-	std::cout << "ELEMENT UNIV\n";
-	std::cout << "CsiDerivative:\n";
-	m_ElementUniv.CsiDerivative.Display(6);
-	std::cout << "EtaDerivative\n";
-	m_ElementUniv.EtaDerivative.Display(6);
-	std::cout << "PcN:\n";
-	m_ElementUniv.PcN.Display();
-	std::cout << std::endl;
+	m_IPC = ipc;
+	m_IPC2D = pow(ipc, 2);
+	m_SFC = sfc;
+	m_ElementUniv = std::make_unique<ElementUniv>(m_IPC, m_SFC);
 }
+
 
 void Element::PrintJacobianMatrixes()
 {

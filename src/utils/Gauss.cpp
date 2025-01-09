@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-std::unordered_map<int, std::vector<Coefficient1D>> Gauss::m_Coefficients =
+std::unordered_map<int, std::vector<Coefficient1D>> Gauss::m_CoefficientsDatabase =
 {
 	{1, {
 			{0, 2}
@@ -36,26 +36,35 @@ std::unordered_map<int, std::vector<Coefficient1D>> Gauss::m_Coefficients =
 	}
 };
 
-std::vector<Coefficient1D> Gauss::GetIntegrationPoints1D(int npc)
+int Gauss::m_IPC{};
+std::vector<Coefficient1D> Gauss::m_Coefficients1D{};
+std::vector<Coefficient2D> Gauss::m_Coefficients2D{};
+
+void Gauss::calcCoefficients1D()
 {
-	return m_Coefficients[npc];
+	m_Coefficients1D.resize(m_IPC);
+	m_Coefficients1D = m_CoefficientsDatabase[m_IPC];
 }
 
-std::vector<Coefficient2D> Gauss::GetIntegrationPoints2D(int npc)
+void Gauss::calcCoefficients2D()
 {
-	std::vector<Coefficient2D> result{};
-	int ipc1D = sqrt(npc);
-	const auto& points1D = m_Coefficients[ipc1D];
+	m_Coefficients2D.resize(pow(m_IPC, 2));
 
-	for (const auto& csiPoint : points1D)
-		for (const auto& etaPoint : points1D)
+	const auto& points = m_CoefficientsDatabase[m_IPC];
+	for (const auto& csiPoint : points)
+		for (const auto& etaPoint : points)
 		{
 			Coefficient2D coeff;
 			coeff.Node.csi = csiPoint.X;
 			coeff.Node.eta = etaPoint.X;
 			coeff.SurfArea = csiPoint.W * etaPoint.W;
-			result.push_back(coeff);
+			m_Coefficients2D.push_back(coeff);
 		}
+}
 
-	return result;
+void Gauss::Initialize(int ipc)
+{
+	m_IPC = ipc;
+	calcCoefficients1D();
+	calcCoefficients2D();
 }
