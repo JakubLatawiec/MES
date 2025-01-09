@@ -36,16 +36,15 @@ std::unordered_map<int, std::vector<Coefficient1D>> Gauss::m_Coefficients =
 	}
 };
 
-std::vector<Coefficient1D> Gauss::GetIntegrationPoints1D(int npc)
+std::vector<Coefficient1D> Gauss::GetIntegrationPoints1D(int ipc)
 {
-	return m_Coefficients[npc];
+	return m_Coefficients[ipc];
 }
 
-std::vector<Coefficient2D> Gauss::GetIntegrationPoints2D(int npc)
+std::vector<Coefficient2D> Gauss::GetIntegrationPoints2D(int ipc)
 {
 	std::vector<Coefficient2D> result{};
-	int ipc1D = sqrt(npc);
-	const auto& points1D = m_Coefficients[ipc1D];
+	const auto& points1D = m_Coefficients[ipc];
 
 	for (const auto& csiPoint : points1D)
 		for (const auto& etaPoint : points1D)

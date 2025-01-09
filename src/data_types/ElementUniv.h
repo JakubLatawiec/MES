@@ -6,14 +6,30 @@
 #include <iostream>
 
 
-struct ElementUniv
+class ElementUniv
 {
-	Matrix CsiDerivative;
-	Matrix EtaDerivative;
-	Matrix PcN{};
+private:
+	int m_IPC{};
+	bool m_Initialized = false;
 
-	void calcPcN(int ipc);
+	Matrix m_CsiDerivatives{};
+	Matrix m_EtaDerivatives{};
+	Matrix m_PcN{};
+	std::array<Matrix, 4> m_PVectors{};
+	std::array<Matrix, 4> m_HbcMatrixes{};
 
-	//TODO:
-	//SEPARATE ELEMENT UNIV CALC FUNCTIONS
+	void calcPcN();
+	void calcDerivatives();
+
+	ElementUniv();
+	~ElementUniv() {};
+	ElementUniv(const ElementUniv&) = delete;
+	ElementUniv& operator=(const ElementUniv&) = delete;
+
+public:
+	void Initalize(const int ipc);
+	static ElementUniv& getInstance();
+	const Matrix& getCsiDerivatives() const;
+	const Matrix& getEtaDerivatives() const;
+	const Matrix& getPcN() const;
 };

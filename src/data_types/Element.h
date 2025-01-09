@@ -13,7 +13,6 @@ class Element
 {
 private:
 	//Static variables
-	static ElementUniv m_ElementUniv;
 	static int m_IPC;
 	static int m_SFC;
 	static std::vector<Coefficient2D> m_IntegrationPoints;
@@ -35,8 +34,10 @@ public:
 	//Constructors
 	Element() = default;
 	
+	static void SetIPC(int ipc) {m_IPC = ipc;}
+	static void SetSFC(int sfc) { m_SFC = sfc; }
+
 	//Calculation methods
-	static void CalcElementUniv(int ipc);
 	static void CalcSurface(int ipc);
 	void CalcJacobians(const std::vector<Node>& nodes);
 	void CalcStiffnessMatrixes(double conductivity);
@@ -45,7 +46,6 @@ public:
 	void CalcCMatrix(double c, double rho);
 
 	//Debug methods
-	static void PrintElementUniv();
 	void PrintJacobianMatrixes();
 	void PrintStiffnessMatrixes();
 	void PrintStiffnessMatrix();

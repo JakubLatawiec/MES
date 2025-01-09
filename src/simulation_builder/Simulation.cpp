@@ -1,4 +1,5 @@
 #include "Simulation.h"
+#include "../data_types/CalculationsData.h"
 
 #include <iostream>
 
@@ -159,17 +160,20 @@ void Simulation::calcGlobalCMatrix()
 
 void Simulation::Run()
 {
+    CalculationsData::Initialize(3);
+    std::cout << CalculationsData::getInstance().getIPC() << "\n";
+    std::cout << CalculationsData::getInstance().getIPC2D() << "\n";
+
     //Debug loaded data
     printLoadedData();
 
+    ElementUniv::getInstance().Initalize(m_IPC);
+
+    Element::SetIPC(m_IPC);
+    Element::SetSFC(4);
+
     //Debug integration points count
     printIPC();
-
-    //Calc universal element derivatives
-    Element::CalcElementUniv(m_IPC);
-
-    //Debug universal element derivatives
-    Element::PrintElementUniv();
 
     //Calc Matrixes for every element
     calcElementJacobians();
