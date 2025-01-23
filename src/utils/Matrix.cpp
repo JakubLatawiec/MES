@@ -163,7 +163,7 @@ Matrix Matrix::Inverse() const
 	return inv;
 }
 
-void Matrix::Display(int precision)
+void Matrix::Display(int precision) const
 {
 	std::cout << std::setprecision(precision);
 	for (const auto& row : m_Data)

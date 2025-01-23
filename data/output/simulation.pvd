@@ -1,0 +1,15 @@
+<VTKFile type="Collection" version="0.1" byte_order="LittleEndian">
+  <Collection>
+    <DataSet timestep="0" group="" part="0" file="temperatures_step_0.vtk"/>
+    <DataSet timestep="50" group="" part="0" file="temperatures_step_1.vtk"/>
+    <DataSet timestep="100" group="" part="0" file="temperatures_step_2.vtk"/>
+    <DataSet timestep="150" group="" part="0" file="temperatures_step_3.vtk"/>
+    <DataSet timestep="200" group="" part="0" file="temperatures_step_4.vtk"/>
+    <DataSet timestep="250" group="" part="0" file="temperatures_step_5.vtk"/>
+    <DataSet timestep="300" group="" part="0" file="temperatures_step_6.vtk"/>
+    <DataSet timestep="350" group="" part="0" file="temperatures_step_7.vtk"/>
+    <DataSet timestep="400" group="" part="0" file="temperatures_step_8.vtk"/>
+    <DataSet timestep="450" group="" part="0" file="temperatures_step_9.vtk"/>
+    <DataSet timestep="500" group="" part="0" file="temperatures_step_10.vtk"/>
+  </Collection>
+</VTKFile>

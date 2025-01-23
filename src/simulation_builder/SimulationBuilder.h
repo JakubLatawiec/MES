@@ -17,6 +17,7 @@ public:
 	SimulationBuilder& LoadData(const std::string& filepath);
 	SimulationBuilder& SetIPC(int ipc);
 	SimulationBuilder& SetSurfaceIPC(int ipc);
+	SimulationBuilder& UseParaView(bool useParaView = true);
 
 	//Pattern methods
 	Simulation Build();

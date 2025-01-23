@@ -29,6 +29,7 @@ private:
 	void calcGlobalCMatrix();
 
 	//Debug methods
+	bool m_UseParaView = false;
 	void printLoadedData();
 	void printIPC();
 	void printElements();

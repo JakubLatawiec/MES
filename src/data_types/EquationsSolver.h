@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../utils/Matrix.h"
+#include <vector>
 
 class EquationsSolver
 {
@@ -28,7 +29,7 @@ public:
 	EquationsSolver() = default;
 
 	//Calculations methods
-	void SolveEquation(double dt, double simulationTime, double initailTemp);
+	std::vector<std::pair<double, Matrix>> SolveEquation(double dt, double simulationTime, double initailTemp);
 
 	//Setters
 	void setGlobalStiffnessMatrix(size_t row, size_t col, double val);

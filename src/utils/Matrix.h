@@ -46,7 +46,7 @@ public:
 	Matrix Inverse() const;
 
 	//Debug methods
-	void Display(int precision = 8);
+	void Display(int precision = 8) const;
 
 	//Setters
 	void setCols(size_t size);

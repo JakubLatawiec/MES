@@ -1,6 +1,9 @@
 #include "Simulation.h"
 
 #include <iostream>
+#include <string>
+#include "../data_parser/VTKParser.h"
+#include <iomanip>
 
 void Simulation::printLoadedData()
 {
@@ -160,16 +163,16 @@ void Simulation::calcGlobalCMatrix()
 void Simulation::Run()
 {
     //Debug loaded data
-    printLoadedData();
+    //printLoadedData();
 
     //Debug integration points count
-    printIPC();
+    //printIPC();
 
     //Calc universal element derivatives
     Element::CalcElementUniv(m_IPC);
 
     //Debug universal element derivatives
-    Element::PrintElementUniv();
+    //Element::PrintElementUniv();
 
     //Calc Matrixes for every element
     calcElementJacobians();
@@ -194,24 +197,47 @@ void Simulation::Run()
     calcGlobalCMatrix();
 
     //Debug every element
-    printElements();
+    //printElements();
 
     //Print stiffness global matrix
-    std::cout << "\nGLOBAL H MATRIX:\n";
-    m_EquationsSolver.PrintGlobalStiffnessMatrix();
+    //std::cout << "\nGLOBAL H MATRIX:\n";
+    //m_EquationsSolver.PrintGlobalStiffnessMatrix();
 
     //Print global P vector
-    std::cout << "\nGLOBAL P VECTOR:\n";
-    m_EquationsSolver.PrintGlobalPVector();
+    //std::cout << "\nGLOBAL P VECTOR:\n";
+    //m_EquationsSolver.PrintGlobalPVector();
 
     //Print global C matrix
-    std::cout << "\nGLOBAL C MATRIX:\n";
-    m_EquationsSolver.PrintGlobalCMatrix();
+    //std::cout << "\nGLOBAL C MATRIX:\n";
+    //m_EquationsSolver.PrintGlobalCMatrix();
 
     //Solve equation
-    m_EquationsSolver.SolveEquation(m_GlobalData.SimulationStepTime, m_GlobalData.SimulationTime, m_GlobalData.InitialTemp);
+    auto results = m_EquationsSolver.SolveEquation(m_GlobalData.SimulationStepTime, m_GlobalData.SimulationTime, m_GlobalData.InitialTemp);
 
-    //Print global T vector
-    std::cout << "\nGLOBAL T VECTOR:\n";
-    m_EquationsSolver.PrintGlobalTVector();
+    size_t step = 0;
+    for (const auto& [time, temperatures] : results)
+    {
+        std::cout << "\n\nTime " << time << ":\n";
+        //temperatures.Display(14);
+
+        double min = 10e8;
+        double max = 0.0;
+
+        for (int i = 0; i < temperatures.getRowsSize(); ++i)
+        {
+            if (temperatures(i, 0) < min)
+                min = temperatures(i, 0);
+            if (temperatures(i, 0) > max)
+                max = temperatures(i, 0);
+        }
+
+        std::cout << std::setprecision(14);
+        std::cout << min << "\n" << max << "\n";
+
+        if (m_UseParaView)
+        {
+            std::string filename = "temperatures_step_" + std::to_string(step++);
+            VTKParser::SaveTemperaturesToVTK(filename, m_Grid, temperatures);
+        }
+    }
 }

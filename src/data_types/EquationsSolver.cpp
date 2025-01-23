@@ -76,13 +76,8 @@ EquationsSolver::EquationsSolver(int nodeCount)
 	m_GlobalCMatrix = Matrix(nodeCount, nodeCount);
 }
 
-void EquationsSolver::SolveEquation(double dt, double simulationTime, double initialTemp)
+std::vector<std::pair<double, Matrix>> EquationsSolver::SolveEquation(double dt, double simulationTime, double initialTemp)
 {
-	/*auto [L, U] = LUDecomposition(m_GlobalStiffnessMatrix);
-	Matrix y = ForwardSubstitution(L, m_GlobalPVector);
-	Matrix x = BackwardSubstitution(U, y);
-	m_GlobalTVector = x;*/
-
 	Matrix A = m_GlobalStiffnessMatrix + (m_GlobalCMatrix * (1.0 / dt));
 	auto [L, U] = LUDecomposition(A);
 
@@ -90,9 +85,9 @@ void EquationsSolver::SolveEquation(double dt, double simulationTime, double ini
 	for (size_t i = 0; i < A.getRowsSize(); ++i)
 		t_prev(i, 0) = initialTemp;
 
-	std::cout << "TEMPERATURE IN TIME: 0\n";
-	t_prev.Display();
-	std::cout << "\n\n";
+	std::vector<std::pair<double, Matrix>> results;
+
+	results.emplace_back(0.0, t_prev);
 
 	for (double currentTime = dt; currentTime <= simulationTime; currentTime += dt)
 	{
@@ -100,12 +95,12 @@ void EquationsSolver::SolveEquation(double dt, double simulationTime, double ini
 		Matrix y = ForwardSubstitution(L, b);
 		Matrix x = BackwardSubstitution(U, y);
 
-		std::cout << "TEMPERATURE IN TIME: " << currentTime << "\n";
-		x.Display();
-		std::cout << "\n\n";
+		results.emplace_back(currentTime, x);
 
 		t_prev = x;
 	}
+
+	return results;
 }
 
 void EquationsSolver::setGlobalStiffnessMatrix(size_t row, size_t col, double val)

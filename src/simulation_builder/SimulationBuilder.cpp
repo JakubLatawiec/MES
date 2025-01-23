@@ -26,6 +26,12 @@ SimulationBuilder& SimulationBuilder::SetSurfaceIPC(int ipc)
 	return *this;
 }
 
+SimulationBuilder& SimulationBuilder::UseParaView(bool useParaView)
+{
+	m_Simulation.m_UseParaView = useParaView;
+	return *this;
+}
+
 Simulation SimulationBuilder::Build()
 {
 	return m_Simulation;

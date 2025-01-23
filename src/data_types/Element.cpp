@@ -45,7 +45,6 @@ void Element::CalcJacobians(const std::vector<Node>& nodes)
 		Jacobian jacobian;
 		for (size_t j = 0; j < 4; ++j)
 		{
-			int node_id = m_NodesID[j] - 1;
 			jacobian.J(0, 0) += m_ElementUniv.CsiDerivative(i, j) * nodes[j].x;
 			jacobian.J(0, 1) += m_ElementUniv.CsiDerivative(i, j) * nodes[j].y;
 			jacobian.J(1, 0) += m_ElementUniv.EtaDerivative(i, j) * nodes[j].x;
